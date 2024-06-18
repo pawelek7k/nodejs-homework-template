@@ -5,6 +5,7 @@ const {
   removeContact,
   addContact,
 } = require("../../models/contacts");
+const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 
@@ -34,13 +35,26 @@ router.get("/:contactId", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const contact = { ...req.body };
-    const createContact = addContact(contact);
-    if () {
-      return res.status(201).json({id, name, email, phone})
-    } else {
-      return res.status(400).json({"message": "missing required name - field"})
+    const { name, email, phone } = req.body;
+    if (!name || !email || !phone) {
+      let missingField = "";
+      if (!name) missingField = "name";
+      else if (!email) missingField = "email";
+      else if (!phone) missingField = "phone";
+
+      return res
+        .status(400)
+        .json({ message: `missing required ${missingField} - field` });
     }
+    const newContact = {
+      id: uuidv4(),
+      name,
+      email,
+      phone,
+    };
+    addContact(newContact);
+
+    return res.status(201).json(newContact);
   } catch (e) {
     next(e);
   }
