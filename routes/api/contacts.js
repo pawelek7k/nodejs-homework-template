@@ -4,6 +4,7 @@ const {
   getContactById,
   removeContact,
   addContact,
+  updateContact,
 } = require("../../models/contacts");
 const { v4: uuidv4 } = require("uuid");
 
@@ -75,7 +76,24 @@ router.delete("/:contactId", async (req, res, next) => {
 });
 
 router.put("/:contactId", async (req, res, next) => {
-  res.json({ message: "template message" });
+  try {
+    const { id } = req.params;
+    const body = req.body;
+
+    if (!body || Object.keys(body).length === 0) {
+      return res.status(400).json({ message: "missing fields" });
+    }
+
+    const updatedContact = updateContact(id, body);
+
+    if (!updatedContact) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.status(200).json(updatedContact);
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;
