@@ -12,7 +12,7 @@ const Joi = require("joi");
 const router = express.Router();
 
 const contactSchema = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string().default(""),
   email: Joi.string().email().required(),
   phone: Joi.string().required(),
 });
