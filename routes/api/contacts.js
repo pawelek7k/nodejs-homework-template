@@ -101,18 +101,15 @@ router.put("/:contactId", async (req, res, next) => {
   }
 });
 
-router.put("/:contactId/favorite", async (req, res, next) => {
+router.patch("/:contactId/favorite", async (req, res, next) => {
   try {
-    const { error } = favoriteSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+    const { body } = req;
+    if (!body || typeof body.favorite === "undefined") {
+      return res.status(400).json({ message: "missing field favorite" });
     }
 
     const { contactId } = req.params;
-    const updatedContact = await updateFavoriteStatus(
-      contactId,
-      req.body.favorite
-    );
+    const updatedContact = await updateStatusContact(contactId, body);
 
     if (!updatedContact) {
       return res.status(404).json({ message: "Not found" });
