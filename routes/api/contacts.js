@@ -15,6 +15,11 @@ const contactSchema = Joi.object({
   name: Joi.string().default(""),
   email: Joi.string().email().required(),
   phone: Joi.string().required(),
+  favorite: Joi.boolean().default(false),
+});
+
+const favoriteSchema = Joi.object({
+  favorite: Joi.boolean().required(),
 });
 
 router.get("/", async (req, res, next) => {
@@ -85,6 +90,29 @@ router.put("/:contactId", async (req, res, next) => {
 
     const { contactId } = req.params;
     const updatedContact = await updateContact(contactId, req.body);
+
+    if (!updatedContact) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.status(200).json(updatedContact);
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.put("/:contactId/favorite", async (req, res, next) => {
+  try {
+    const { error } = favoriteSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { contactId } = req.params;
+    const updatedContact = await updateFavoriteStatus(
+      contactId,
+      req.body.favorite
+    );
 
     if (!updatedContact) {
       return res.status(404).json({ message: "Not found" });

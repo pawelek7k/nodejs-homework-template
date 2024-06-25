@@ -60,10 +60,25 @@ const updateContact = async (contactId, body) => {
   }
 };
 
+const updateFavoriteStatus = async (contactId, favorite) => {
+  try {
+    const updatedContact = await Contact.findByIdAndUpdate(
+      contactId,
+      { favorite },
+      { new: true }
+    );
+    return updatedContact;
+  } catch (error) {
+    console.error("Error updating favorite status:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   listContacts,
   getContactById,
   removeContact,
   addContact,
   updateContact,
+  updateFavoriteStatus,
 };
