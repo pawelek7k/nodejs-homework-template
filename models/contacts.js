@@ -2,11 +2,12 @@ const fs = require("fs/promises");
 const path = require("path");
 const contactsPath = path.join(__dirname, "contacts.json");
 const { v4: uuidv4 } = require("uuid");
+const { ContactDB } = require("../db");
 
 const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    return JSON.parse(data);
+    const contacts = await ContactDB.find({});
+    return contacts;
   } catch (error) {
     console.error("Error reading contacts file", error);
     throw error;
@@ -15,8 +16,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const contacts = await listContacts();
-    const contact = contacts.find((c) => c.id === contactId);
+    const contact = await ContactDB.findById(contactId);
     return contact || null;
   } catch (error) {
     console.error("Error getting contact by ID:", error);
@@ -26,10 +26,8 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const contacts = await listContacts();
-    const updatedContacts = contacts.filter((c) => c.id !== contactId);
-    await fs.writeFile(contactsPath, JSON.stringify(updatedContacts, null, 2));
-    return updatedContacts;
+    const deletedContact = await ContactDB.findByIdAndDelete(contactId);
+    return deletedContact;
   } catch (error) {
     console.error("Error removing contact:", error);
     throw error;
@@ -38,16 +36,8 @@ const removeContact = async (contactId) => {
 
 const addContact = async (body) => {
   try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    const contacts = JSON.parse(data);
-
-    const newId = uuidv4();
-    const newContact = { id: newId, ...body };
-
-    contacts.push(newContact);
-
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 4));
-
+    const newContact = new ContactDB(body);
+    await newContact.save();
     return newContact;
   } catch (error) {
     console.error(error);
@@ -57,19 +47,13 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    const contacts = JSON.parse(data);
-
-    const contact = contacts.find((contact) => contact.id === contactId);
+    const updatedContact = await ContactDB.findByIdAndUpdate(contactId, body, {
+      new: true,
+    });
     if (!contact) {
       return null;
     }
-
-    Object.assign(contact, body);
-
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 4));
-
-    return contact;
+    return updateContact;
   } catch (error) {
     console.error(error);
     throw error;
