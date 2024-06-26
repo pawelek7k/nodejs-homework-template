@@ -1,8 +1,12 @@
 const mangoose = require("mangoose");
 
+require("dotenv").config();
+
+const { MAIN_PORT: mainPort } = process.env;
+
 const connectDB = async () => {
   try {
-    await mangoose.connect(process.env.MAIN_PORT, {
+    await mangoose.connect(mainPort, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
