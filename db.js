@@ -1,19 +1,18 @@
 const mangoose = require("mangoose");
-const express = require("express");
 
 const connectDB = async () => {
   try {
-    await mangoose.connect("mongodb://localhost:27017/contactsDB", {
+    await mangoose.connect(process.env.MAIN_PORT, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log("Database connection succesful");
   } catch (e) {
-    next(e);
+    console.error(e);
   }
 };
 
-const contactSchema = new mongoose.Schema({
+const contactSchema = new mangoose.Schema({
   name: {
     type: String,
     required: [true, "Set name for contact"],
@@ -30,6 +29,6 @@ const contactSchema = new mongoose.Schema({
   },
 });
 
-const contactDB = mongoose.model("Contact", contactSchema);
+const ContactDB = mangoose.model("Contact", contactSchema);
 
 module.exports = { connectDB, ContactDB };
