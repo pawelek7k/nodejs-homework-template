@@ -20,8 +20,8 @@ const usersSchema = new Schema({
     type: String,
     default: null,
   },
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: "user",
-  },
 });
+
+const UserDB = mangoose.model("User", usersSchema);
+
+module.exports = { UserDB };
