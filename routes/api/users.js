@@ -1,8 +1,8 @@
 const express = require("express");
 const User = require("../../usersSchema");
 const jwt = require("jsonwebtoken");
-const validateUser = require("../../middleware/validateUser");
-const authMiddleware = require("../../middleware/authMiddleware");
+const validateUser = require("../../validateUser");
+const authMiddleware = require("../api/token");
 const secret = "secret word";
 
 const router = express.Router();
@@ -78,6 +78,17 @@ router.get("/users/logout", authMiddleware, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.get("/users/current", authMiddleware, async (req, res, next) => {
+  const user = req.user;
+  if (!user) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+  res.status(200).json({
+    email: user.email,
+    subscription: user.subscription,
+  });
 });
 
 module.exports = router;
