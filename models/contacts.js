@@ -1,7 +1,3 @@
-const fs = require("fs/promises");
-const path = require("path");
-const contactsPath = path.join(__dirname, "contacts.json");
-const { v4: uuidv4 } = require("uuid");
 const { ContactDB } = require("../db");
 
 const listContacts = async () => {
@@ -50,7 +46,7 @@ const updateContact = async (contactId, body) => {
     const updatedContact = await ContactDB.findByIdAndUpdate(contactId, body, {
       new: true,
     });
-    if (!contact) {
+    if (!updatedContact) {
       return null;
     }
     return updateContact;
@@ -62,7 +58,7 @@ const updateContact = async (contactId, body) => {
 
 const updateFavoriteStatus = async (contactId, favorite) => {
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(
+    const updatedContact = await ContactDB.findByIdAndUpdate(
       contactId,
       { favorite },
       { new: true }
