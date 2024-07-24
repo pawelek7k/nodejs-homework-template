@@ -49,7 +49,7 @@ const updateContact = async (contactId, body) => {
     if (!updatedContact) {
       return null;
     }
-    return updateContact;
+    return updatedContact;
   } catch (error) {
     console.error(error);
     throw error;
