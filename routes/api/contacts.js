@@ -5,6 +5,7 @@ const {
   removeContact,
   addContact,
   updateContact,
+  updateFavoriteStatus,
 } = require("../../models/contacts");
 const { v4: uuidv4 } = require("uuid");
 const Joi = require("joi");
@@ -16,10 +17,6 @@ const contactSchema = Joi.object({
   email: Joi.string().email().required(),
   phone: Joi.string().required(),
   favorite: Joi.boolean().default(false),
-});
-
-const favoriteSchema = Joi.object({
-  favorite: Joi.boolean().required(),
 });
 
 router.get("/", async (req, res, next) => {
@@ -109,7 +106,7 @@ router.patch("/:contactId/favorite", async (req, res, next) => {
     }
 
     const { contactId } = req.params;
-    const updatedContact = await updateStatusContact(contactId, body);
+    const updatedContact = await updateFavoriteStatus(contactId, body);
 
     if (!updatedContact) {
       return res.status(404).json({ message: "Not found" });
