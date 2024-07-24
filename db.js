@@ -23,17 +23,20 @@ const contactSchema = new mangoose.Schema({
   },
   email: {
     type: String,
+    required: [true, "Email is required"],
   },
   phone: {
     type: String,
+    required: [true, "Phone number is required"],
   },
   favorite: {
     type: Boolean,
     default: false,
   },
   owner: {
-    type: mangoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "user",
+    required: true,
   },
 });
 
