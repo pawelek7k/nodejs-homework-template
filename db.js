@@ -31,6 +31,10 @@ const contactSchema = new mangoose.Schema({
     type: Boolean,
     default: false,
   },
+  owner: {
+    type: mangoose.Schema.Types.ObjectId,
+    ref: "user",
+  },
 });
 
 const ContactDB = mangoose.model("Contact", contactSchema);
