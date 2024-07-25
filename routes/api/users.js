@@ -3,7 +3,7 @@ const User = require("../../usersSchema");
 const jwt = require("jsonwebtoken");
 const validateUser = require("../../validateUser");
 const authMiddleware = require("../api/token");
-const secret = "secret word";
+const secret = process.env.SECRET_KEY;
 
 const router = express.Router();
 
@@ -80,7 +80,7 @@ router.get("/users/logout", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get("/users/current", authMiddleware, async (req, res, next) => {
+router.get("/users/current", authMiddleware, async (req, res) => {
   const user = req.user;
   if (!user) {
     return res.status(401).json({ message: "Not authorized" });

@@ -1,22 +1,23 @@
-const mangoose = require("mangoose");
-
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-const { MAIN_PORT: mainPort } = process.env;
+const { MAIN_PORT: mongoURI } = process.env;
 
 const connectDB = async () => {
   try {
-    await mangoose.connect(mainPort, {
+    await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("Database connection succesful");
+    console.log("Database connection successful");
   } catch (e) {
     console.error(e);
   }
 };
 
-const contactSchema = new mangoose.Schema({
+const Schema = mongoose.Schema;
+
+const contactSchema = new Schema({
   name: {
     type: String,
     required: [true, "Set name for contact"],
@@ -40,6 +41,6 @@ const contactSchema = new mangoose.Schema({
   },
 });
 
-const ContactDB = mangoose.model("Contact", contactSchema);
+const ContactDB = mongoose.model("Contact", contactSchema);
 
 module.exports = { connectDB, ContactDB };
