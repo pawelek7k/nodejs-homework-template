@@ -48,7 +48,7 @@ router.post("/users/login", validateUser, async (req, res, next) => {
   }
 
   const payload = {
-    id: user.id,
+    id: user._id,
     username: user.username,
   };
 
@@ -70,25 +70,37 @@ router.post("/users/login", validateUser, async (req, res, next) => {
 });
 
 router.get("/users/logout", authMiddleware, async (req, res, next) => {
-  const user = req.user;
+  const { _id } = req.user;
   try {
-    user.token = null;
-    await user.save();
+    const user = await User.findById(_id);
+
+    if (user.token) {
+      user.token = null;
+      await user.save();
+    }
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/users/current", authMiddleware, async (req, res) => {
-  const user = req.user;
-  if (!user) {
-    return res.status(401).json({ message: "Not authorized" });
+router.get("/users/current", authMiddleware, async (req, res, next) => {
+  const { _id } = req.user;
+
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    res.status(200).json({
+      id: user._id,
+      email: user.email,
+      subscription: user.subscription,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({
-    email: user.email,
-    subscription: user.subscription,
-  });
 });
 
 module.exports = router;

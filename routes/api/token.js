@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("../../usersSchema");
+const secret = process.env.SECRET_KEY;
 
 const authMiddleware = async (req, res, next) => {
-  const authHeader = req.headers.autherization;
+  const authHeader = req.headers.authorization;
 
   if (!authHeader) {
     return res.status(401).json({ message: "Not authorized" });
@@ -10,12 +11,11 @@ const authMiddleware = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, secret);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).lean();
 
     if (!user || user.token !== token) {
       return res.status(401).json({ message: "Not authorized" });
     }
-
     req.user = user;
     next();
   } catch (error) {

@@ -5,10 +5,7 @@ const { MAIN_PORT: mongoURI } = process.env;
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoURI);
     console.log("Database connection successful");
   } catch (e) {
     console.error(e);
