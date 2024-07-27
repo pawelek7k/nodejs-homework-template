@@ -1,6 +1,6 @@
-const mangoose = require("mangoose");
-const Schema = mangoose.Schema;
-const bCrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const bcrypt = require("bcryptjs");
 
 const userSchema = new Schema({
   password: {
@@ -24,13 +24,12 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.setPassword = function (password) {
-  this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(6));
+  this.password = bcrypt.hashSync(password, bcrypt.genSaltSync(6));
 };
-
 userSchema.methods.validPassword = function (password) {
-  return bCrypt.compareSync(password, this.password);
+  return bcrypt.compareSync(password, this.password);
 };
 
-const UserDB = mangoose.model("User", userSchema);
+const UserDB = mongoose.model("User", userSchema);
 
 module.exports = { UserDB };

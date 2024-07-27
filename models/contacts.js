@@ -1,8 +1,8 @@
 const { ContactDB } = require("../db");
 
-const listContacts = async () => {
+const listContacts = async (userId) => {
   try {
-    const contacts = await ContactDB.find({});
+    const contacts = await ContactDB.find({ owner: userId });
     return contacts;
   } catch (error) {
     console.error("Error reading contacts file", error);
@@ -10,9 +10,12 @@ const listContacts = async () => {
   }
 };
 
-const getContactById = async (contactId) => {
+const getContactById = async (contactId, userId) => {
   try {
-    const contact = await ContactDB.findById(contactId);
+    const contact = await ContactDB.findOne({
+      _id: contactId,
+      owner: userId,
+    });
     return contact || null;
   } catch (error) {
     console.error("Error getting contact by ID:", error);
@@ -20,9 +23,12 @@ const getContactById = async (contactId) => {
   }
 };
 
-const removeContact = async (contactId) => {
+const removeContact = async (contactId, userId) => {
   try {
-    const deletedContact = await ContactDB.findByIdAndDelete(contactId);
+    const deletedContact = await ContactDB.findOneAndDelete({
+      _id: contactId,
+      owner: userId,
+    });
     return deletedContact;
   } catch (error) {
     console.error("Error removing contact:", error);
@@ -30,9 +36,9 @@ const removeContact = async (contactId) => {
   }
 };
 
-const addContact = async (body) => {
+const addContact = async (body, userId) => {
   try {
-    const newContact = new ContactDB(body);
+    const newContact = new ContactDB({ ...body, owner: userId });
     await newContact.save();
     return newContact;
   } catch (error) {
@@ -41,11 +47,16 @@ const addContact = async (body) => {
   }
 };
 
-const updateContact = async (contactId, body) => {
+const updateContact = async (contactId, body, userId) => {
   try {
-    const updatedContact = await ContactDB.findByIdAndUpdate(contactId, body, {
-      new: true,
-    });
+    const updatedContact = await ContactDB.findOneAndUpdate(
+      {
+        _id: contactId,
+        owner: userId,
+      },
+      body,
+      { new: true }
+    );
     if (!updatedContact) {
       return null;
     }
@@ -56,10 +67,13 @@ const updateContact = async (contactId, body) => {
   }
 };
 
-const updateFavoriteStatus = async (contactId, favorite) => {
+const updateFavoriteStatus = async (contactId, favorite, userId) => {
   try {
-    const updatedContact = await ContactDB.findByIdAndUpdate(
-      contactId,
+    const updatedContact = await ContactDB.findOneAndUpdate(
+      {
+        _id: contactId,
+        owner: userId,
+      },
       { favorite },
       { new: true }
     );

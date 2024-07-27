@@ -1,42 +1,43 @@
-const mangoose = require("mangoose");
-
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-const { MAIN_PORT: mainPort } = process.env;
+const { MAIN_PORT: mongoURI } = process.env;
 
 const connectDB = async () => {
   try {
-    await mangoose.connect(mainPort, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("Database connection succesful");
+    await mongoose.connect(mongoURI);
+    console.log("Database connection successful");
   } catch (e) {
     console.error(e);
   }
 };
 
-const contactSchema = new mangoose.Schema({
+const Schema = mongoose.Schema;
+
+const contactSchema = new Schema({
   name: {
     type: String,
     required: [true, "Set name for contact"],
   },
   email: {
     type: String,
+    required: [true, "Email is required"],
   },
   phone: {
     type: String,
+    required: [true, "Phone number is required"],
   },
   favorite: {
     type: Boolean,
     default: false,
   },
   owner: {
-    type: mangoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "user",
+    required: true,
   },
 });
 
-const ContactDB = mangoose.model("Contact", contactSchema);
+const ContactDB = mongoose.model("Contact", contactSchema);
 
 module.exports = { connectDB, ContactDB };
