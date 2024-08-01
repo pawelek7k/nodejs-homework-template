@@ -3,7 +3,11 @@ const User = require("../../usersSchema");
 const jwt = require("jsonwebtoken");
 const validateUser = require("../../validateUser");
 const authMiddleware = require("../api/token");
+const gravatar = require("gravatar");
+const upload = require("../../multerConfig");
 const secret = process.env.SECRET_KEY;
+const path = require("path");
+const processImage = require("../../ImageProcessor");
 
 const router = express.Router();
 
@@ -19,7 +23,17 @@ router.post("/users/signup", validateUser, async (req, res, next) => {
     });
   }
   try {
-    const newUser = new User({ username, email });
+    const avatarUrl = gravatar.url(email, {
+      s: "200",
+      r: "pg",
+      d: "mm",
+    });
+    const defaultAvatarUrl = "/avatars/avatar.jpg";
+    const finalAvatarUrl = avatarUrl.includes("avatar.jpg")
+      ? defaultAvatarUrl
+      : avatarUrl;
+
+    const newUser = new User({ username, email, avatarURL: finalAvatarUrl });
     newUser.setPassword(password);
     await newUser.save();
     res.status(201).json({
@@ -102,5 +116,36 @@ router.get("/users/current", authMiddleware, async (req, res, next) => {
     next(error);
   }
 });
+
+router.patch(
+  "/users/avatars",
+  authMiddleware,
+  upload.single("avatar"),
+  async (req, res, next) => {
+    const { _id } = req.user;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+      const tempPath = path.join(__dirname, "../../tmp", req.file.filename);
+      const publicPath = path.join(__dirname, "../../public/avatars");
+      const newFileName = `${_id}${path.extname(req.file.originalname)}`;
+      const newFilePath = path.join(publicPath, newFileName);
+
+      await processImage(tempPath, newFilePath);
+
+      const avatarURL = `/avatars/${newFileName}`;
+      const user = await User.findById(_id);
+      user.avatarURL = avatarURL;
+      await user.save();
+
+      res.status(200).json({ avatarURL });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
