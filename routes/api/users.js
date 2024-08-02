@@ -1,5 +1,5 @@
 const express = require("express");
-const User = require("../../usersSchema");
+const { UserDB: User } = require("../../usersSchema");
 const jwt = require("jsonwebtoken");
 const validateUser = require("../../validateUser");
 const authMiddleware = require("../api/token");
@@ -11,7 +11,7 @@ const processImage = require("../../ImageProcessor");
 
 const router = express.Router();
 
-router.post("/users/signup", validateUser, async (req, res, next) => {
+router.post("/signup", validateUser, async (req, res, next) => {
   const { username, email, password } = req.body;
   const user = await User.findOne({ email }).lean();
   if (user) {
@@ -48,7 +48,7 @@ router.post("/users/signup", validateUser, async (req, res, next) => {
   }
 });
 
-router.post("/users/login", validateUser, async (req, res, next) => {
+router.post("/login", validateUser, async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -83,7 +83,7 @@ router.post("/users/login", validateUser, async (req, res, next) => {
   });
 });
 
-router.get("/users/logout", authMiddleware, async (req, res, next) => {
+router.get("/logout", authMiddleware, async (req, res, next) => {
   const { _id } = req.user;
   try {
     const user = await User.findById(_id);
@@ -98,7 +98,7 @@ router.get("/users/logout", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get("/users/current", authMiddleware, async (req, res, next) => {
+router.get("/current", authMiddleware, async (req, res, next) => {
   const { _id } = req.user;
 
   try {
@@ -118,7 +118,7 @@ router.get("/users/current", authMiddleware, async (req, res, next) => {
 });
 
 router.patch(
-  "/users/avatars",
+  "/avatars",
   authMiddleware,
   upload.single("avatar"),
   async (req, res, next) => {
